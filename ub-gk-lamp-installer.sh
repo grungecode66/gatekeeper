@@ -7,6 +7,16 @@
 # assumes that the script is run in a directory
 # structured:
 # 
+#~/
+#   gatekeeper/
+#      ub-gk-lamp-installer.sh
+#      db/
+#          create-bare-db.sql
+#   <script generated files and directories created here>
+#
+# NOTE: do not run this as $ sudo sh <script> ...
+#       as this invokes dash?? and has no <<< redirect
+#       run as $ sudo <script> ...
 
 ###############################################################################
 # Configuration
@@ -49,7 +59,7 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-if [ -z "$DB_ROOT_PW" ]; then 
+if [[ -z "$DB_ROOT_PW" ]]; then 
 	echo "USAGE: <installer> <dbusername> <dbpassword> <dbname> <dbhost>"
 	exit 1
 fi
@@ -73,14 +83,16 @@ git-core
 python-dev
 python-setuptools
 python-mysqldb
-php
+php5-common
+php5-mysql
+samba
 phpmyadmin 
 PACKAGES
-samba
 
-debconf-set-selections <<< 'mysql-server mysql-server/root_password password $DB_ROOT_PW'
-debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password $DB_ROOT_PW'
-apt-get -y install mysql-server
+
+sudo debconf-set-selections <<< "mysql-server mysql-server/root_password password $DB_ROOT_PW"
+sudo debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $DB_ROOT_PW"
+sudo apt-get -y install mysql-server
 
 ##############################################################################
 # create filesystem shares and set permissions
@@ -101,8 +113,8 @@ ln -s $GK_HOME/app /var/www/html/applications
 # create mysql tables
 ##############################################################################
 echo "Creating Database..."
-mysql -u $DB_USER -p $DB_ROOT_PW -e "CREATE DATABASE gk"
-mysql -h $DB_HOST -u $DB_USER -p $DB_ROOT_PW  $DB_NAME < db/create-bare-db.sql
+mysql -u"$DB_USER" -p"$DB_ROOT_PW" -e "CREATE DATABASE $DB_NAME;"
+mysql -h "$DB_HOST" -u "$DB_USER" -p "$DB_ROOT_PW" "$DB_NAME" < db/create-bare-db.sql
 
 ###############################################################################
 # generate php test page
