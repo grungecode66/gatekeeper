@@ -114,7 +114,8 @@ ln -s $GK_HOME/app /var/www/html/applications
 ##############################################################################
 echo "Creating Database..."
 mysql -u"$DB_USER" -p"$DB_ROOT_PW" -e "CREATE DATABASE $DB_NAME;"
-mysql -h "$DB_HOST" -u "$DB_USER" -p "$DB_ROOT_PW" "$DB_NAME" < db/create-bare-db.sql
+# this is not needed but it works and it may be useful once there is a real database around
+#mysql -h "$DB_HOST" -u "$DB_USER" -p "$DB_ROOT_PW" "$DB_NAME" < ./db/create-bare-db.sql
 
 ###############################################################################
 # generate php test page
@@ -150,7 +151,7 @@ SCONF
 
 service samba restart
 
-
+chown -R cromaca:cromaca /var/www
 
 
 ###############################################################################
