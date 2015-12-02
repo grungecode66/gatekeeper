@@ -39,6 +39,8 @@ SERVER_NAME='gatekeeper'
 VERSION='1.1'
 WKGRP='HOMENET'
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 SYS_IP="`ip addr show eth0 | grep inet | awk '{ print $2; }' | sed 's/\/.*$//'`"
 
 # DB credentials stored as env vars
@@ -107,7 +109,16 @@ mkdir -p $GK_HOME/trash
 mkdir -p $GK_HOME/log
 mkdir -p $GK_HOME/opt
 
-ln -s $GK_HOME/app /var/www/html/applications
+# TODO: fix this! - the sym link is problematic for now 
+# ln -s $GK_HOME/app /var/www/html/applications
+
+##############################################################################
+# put the gatekeeper.sh script in place
+##############################################################################
+cp $DIR/gatekeeper.sh $GK_HOME/app/bin/
+chmod 775 $GK_HOME/app/bin/gatekeeper.sh
+
+# TODO: add cron entry to run this 
 
 ##############################################################################
 # create mysql tables
@@ -152,7 +163,7 @@ SCONF
 service samba restart
 
 chown -R cromaca:cromaca /var/www
-
+chown -R cromaca:cromaca $GK_HOME
 
 ###############################################################################
 # All done!
