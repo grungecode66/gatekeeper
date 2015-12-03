@@ -138,6 +138,19 @@ cat > /var/www/html/info.php <<PINFO
 
 PINFO
 
+##############################################################################
+# phpmyadmin hack 
+#############################################################################
+sudo cat /etc/apache2/apache2.conf <<PADMIN
+
+# phpmyadmin hack - you may also need to copy the config file see 
+# /etc/phpmyadmin/ for config.inc.php copy sample over this?
+Include /etc/phpmyadmin/apache.conf
+
+PADMIN
+
+
+
 ###############################################################################
 # configure samba
 ###############################################################################
