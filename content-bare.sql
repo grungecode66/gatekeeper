@@ -6,6 +6,7 @@ CREATE TABLE CONTENT (
      content_file VARCHAR(64) NOT NULL,
      content_subject INT,
      content_add_date DATE NOT NULL,
+     content_activity_date DATE,
      content_proc_ind INT DEFAULT 0,
      content_type VARCHAR(3),
      content_source VARCHAR(64) 
