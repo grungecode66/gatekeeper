@@ -36,7 +36,7 @@ delim = "|"
 timestamp = datetime.datetime.now().strftime("%Y%d%H%M%S") # '201309130134'
 datestr = datetime.datetime.now().strftime("%m-%d-%Y")
 method = 'PROCITEM_SCRIPT'
-now = time.strftime('%Y-%m-%d %H:%M:%S')
+now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 ###############################################################################
 # Setup a database connection with credentials provided
@@ -49,6 +49,20 @@ db = MySQLdb.connect(host=dbInfo[0], # your host, usually localhost
 
 cur = db.cursor()
 
+###############################################################################
+# return the md5 of the file passed to it        
+###############################################################################
+def HashCalc(fname):
+        try:
+                f = file(rootPath + objectPath + fname,'rb')
+                Data =f.read()
+                MD5 = hashlib.md5(Data).hexdigest()
+        except:
+                errFile.write('MD5 error: Failed To Open File ' + (rootPath + objectPath + fname))
+                errFile.close()
+                sys.exit()
+        f.close()
+        return MD5
 
 
 
