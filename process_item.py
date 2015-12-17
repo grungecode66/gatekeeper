@@ -100,6 +100,56 @@ for row in cur.fetchall():
    md5InDb.append(row[1])
 
 
+###############################################################################
+# process the item
+###############################################################################
+
+filehash = HashCalc(new_item)
+parthash = filehash[:16]
+# TODO: sanitize name or not???? Could overwrite file1.jpg for example!
+
+if filehash in md5InDb: # already in database COLLISION
+        os.rename((rootPath + objectPath + new_item), (rootPath + trashPath + new_item))  # move the dupe
+        errFile.write("Duplicate file detected: " + new_item + ". Moved to trash.\n")
+else:
+
+        filesql  = """INSERT INTO File (file_name, file_sid, file_abs_path, file_date_added, file_source) VALUES (%s, %s, %s, %s, %s)"""
+
+        contentsql = """INSERT INTO Content (content_sid, content_file, content_activity_date, content_type) VALUES (%s%s%s%s)"""
+
+        try:
+                abs_path = (rootPath + contentPath)
+                cur.execute(filesql , (new_item, filehash, getcontentpath(extn) , now, method ))
+                cur.execute(contentsql, filehash, new_item, now, extn)
+                db.commit()
+
+                # move file into proper dir. unique name is required due 
+                #to possibility of img1.jpg already existing in directory
+                os.rename((rootPath + objectPath + new_item), (getcontentpath(extn) + new_item))
+                logFile.write("Added file " + unique_filename + ", " + str(sz) + \
+                        ", " + extn + ", " + key + " to database successfully.\n")
+        except:
+                errFile.write(filesql + "\n\n" + contentsql + "\n\n" + new_item + " not added to db.")
+
+
+###############################################################################
+# write to log that the content was added
+###############################################################################
+try:
+        # content.log will contain a line such as
+        # 2015-10-22|abcdef1234567890abcdef1234567890|somefile.ext
+        # this will be the report referenced in task item #2
+        contentlog = open((rootPath + logPath + 'content.log') , 'a')
+        contentlog.write(datestr + delim + filehash + delim + new_item + "\n")
+except:
+        print("Error writing to log - see error log for " + new_item)
+        errFile.write("Error writing to content.log for item: " + new_item + " hash: " + filehash + "\n")
+finally:
+        contentlog.close()
+
+
+logFile.close()
+errFile.close()
 
 
 
