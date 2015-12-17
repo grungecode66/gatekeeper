@@ -12,6 +12,16 @@ Items are processed one per run to avoid congestion.
 
 '''
 
+
+import os
+import hashlib
+import sys
+import MySQLdb
+import datetime
+import string
+import random
+
+
 ###############################################################################
 # Script variables  
 ###############################################################################
@@ -20,15 +30,26 @@ trashPath = '/trash/'
 logPath = '/logs/'
 contentPath = '/content/'
 rootPath = '/home/cromaca'
-# TODO: decide on credential management task #10 on ss
 configPath = '/config/'
 extentions = ['mp4', 'flv', 'jpg', 'ebm', 'gif'] # ebm is a hack for webm
-
 delim = "|"
 timestamp = datetime.datetime.now().strftime("%Y%d%H%M%S") # '201309130134'
 datestr = datetime.datetime.now().strftime("%m-%d-%Y")
 method = 'PROCITEM_SCRIPT'
 now = time.strftime('%Y-%m-%d %H:%M:%S')
 
-error_trap = ""
+###############################################################################
+# Setup a database connection with credentials provided
+###############################################################################
+dbInfo = open(rootPath + configPath + 'dbinfo.txt').read().splitlines()
+db = MySQLdb.connect(host=dbInfo[0], # your host, usually localhost
+        user=dbInfo[1], # your username
+        passwd=dbInfo[2], # your password
+        db=dbInfo[3]) # name of the data base   
+
+cur = db.cursor()
+
+
+
+
 
