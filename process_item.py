@@ -65,5 +65,18 @@ def HashCalc(fname):
         return MD5
 
 
+###############################################################################
+# return folder path string based on extension
+###############################################################################
+def getcontentpath(ftype, endc = '/'):
+        if ftype == "jpg":
+                return (rootPath + contentPath + "image" + endc)
+        elif ftype == "mp4":
+                return (rootPath + contentPath + "video" + endc)
+        elif ftype == "gif":
+                return (rootPath + contentPath + "gif" + endc)
+        else:
+                errFile.write("FATAL ERROR: File extension " + ftype + " not found for item " + new_item + "\n")
+                sys.exit(1)
 
 
