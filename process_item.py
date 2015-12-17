@@ -66,6 +66,22 @@ def HashCalc(fname):
 
 
 ###############################################################################
+# return a string of 'size' alphanumeric chars
+###############################################################################
+def get_random_ai(size = 4, chars=string.ascii_uppercase + string.digits):
+        return ''.join(random.choice(chars) for x in range(size))
+
+
+
+###############################################################################
+# Rename the file string
+###############################################################################
+def safe_rename(old_name):
+	return get_random_ai(4) + "_" + old_name 
+
+
+
+###############################################################################
 # return folder path string based on extension
 ###############################################################################
 def getcontentpath(ftype, endc = '/'):
@@ -75,8 +91,10 @@ def getcontentpath(ftype, endc = '/'):
                 return (rootPath + contentPath + "video" + endc)
         elif ftype == "gif":
                 return (rootPath + contentPath + "gif" + endc)
+        elif ftype == "ebm":
+                return (rootPath + contentPath + "gif" + endc)
         else:
-                errFile.write("FATAL ERROR: File extension " + ftype + " not found for item " + new_item + "\n")
+                errFile.write("FATAL ERROR: File extension '" + ftype + "' not found for item " + new_item + "\n")
                 sys.exit(1)
 
 ###############################################################################
@@ -103,11 +121,7 @@ for row in cur.fetchall():
 ###############################################################################
 # process the item
 ###############################################################################
-
 filehash = HashCalc(new_item)
-parthash = filehash[:16]
-# TODO: sanitize name or not???? Could overwrite file1.jpg for example!
-
 if filehash in md5InDb: # already in database COLLISION
         os.rename((rootPath + objectPath + new_item), (rootPath + trashPath + new_item))  # move the dupe
         errFile.write("Duplicate file detected: " + new_item + ". Moved to trash.\n")
@@ -118,18 +132,17 @@ else:
         contentsql = """INSERT INTO Content (content_sid, content_file, content_activity_date, content_type) VALUES (%s%s%s%s)"""
 
         try:
-                abs_path = (rootPath + contentPath)
+                if not os.path.exists((getcontentpath(extn) + new_item)):
+			os.rename((rootPath + objectPath + new_item), (getcontentpath(extn) + new_item))
+		else:
+			old_name = new_item
+			new_item = safe_rename(new_item)			
+			os.rename((rootPath + objectPath + old_name), (getcontentpath(extn) + new_item))
                 cur.execute(filesql , (new_item, filehash, getcontentpath(extn) , now, method ))
                 cur.execute(contentsql, filehash, new_item, now, extn)
                 db.commit()
-
-                # move file into proper dir. unique name is required due 
-                #to possibility of img1.jpg already existing in directory
-                os.rename((rootPath + objectPath + new_item), (getcontentpath(extn) + new_item))
-                logFile.write("Added file " + unique_filename + ", " + str(sz) + \
-                        ", " + extn + ", " + key + " to database successfully.\n")
         except:
-                errFile.write(filesql + "\n\n" + contentsql + "\n\n" + new_item + " not added to db.")
+                errFile.write(filesql + "\n\n" + contentsql + "\n\n" + new_item + " Database or duplicate error: not added to db.")
 
 
 ###############################################################################
@@ -142,23 +155,11 @@ try:
         contentlog = open((rootPath + logPath + 'content.log') , 'a')
         contentlog.write(datestr + delim + filehash + delim + new_item + "\n")
 except:
-        print("Error writing to log - see error log for " + new_item)
         errFile.write("Error writing to content.log for item: " + new_item + " hash: " + filehash + "\n")
 finally:
         contentlog.close()
 
-
-logFile.close()
 errFile.close()
-
-
-
-
-
-
-
-
-
 
 
 
