@@ -79,4 +79,20 @@ def getcontentpath(ftype, endc = '/'):
                 errFile.write("FATAL ERROR: File extension " + ftype + " not found for item " + new_item + "\n")
                 sys.exit(1)
 
+###############################################################################
+# open error log
+###############################################################################
+errFileName = logPath + 'error_' + timestamp + '.log'
+errFile = open((rootPath + errFileName), 'w')
+
+
+
+
+
+
+
+
+
+
+
 
