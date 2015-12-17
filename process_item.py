@@ -85,6 +85,22 @@ def getcontentpath(ftype, endc = '/'):
 errFileName = logPath + 'error_' + timestamp + '.log'
 errFile = open((rootPath + errFileName), 'w')
 
+###############################################################################
+# collect all of the stored hashes for comparison
+###############################################################################
+try:
+        cur.execute("SELECT * FROM Content")
+except:
+        errFile.write("Could not obtain MD5 list from database while processing " + new_item + "\n")
+        sys.exit(1)
+md5InDb = []
+
+# get a list of hashes currently in the database
+for row in cur.fetchall():
+   md5InDb.append(row[1])
+
+
+
 
 
 
